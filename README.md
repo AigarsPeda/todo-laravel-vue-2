@@ -1,24 +1,19 @@
-# todo-laravel-vue-2
+# TODO-LARAVEL-VUE-2
 
-## Project setup
-```
+### Install dependencies
+
+```bash
 npm install
 ```
 
-### Compiles and hot-reloads for development
-```
+### Run App
+
+```bash
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Runs the app in the development mode.<br />
+Open [http://localhost:8080/](http://localhost:8080/) to view it in the browser.
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
