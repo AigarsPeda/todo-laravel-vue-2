@@ -7,37 +7,14 @@
       v-model="newTodo"
       @keyup.enter="addTodo"
     />
-    <div
-      v-for="(todo, index) in todosFiltered"
-      :key="todo.id"
-      class="todo-item"
-    >
-      <div class="todo-left">
-        <input type="checkbox" v-model="todo.completed" />
-        <!-- completed is a css class witch is conditional
-        is added from todo.completed value and 
-        todo-item-label is default css class -->
-        <div
-          v-if="!todo.editing"
-          @dblclick="editTodo(todo)"
-          :class="[{ completed: todo.completed }, 'todo-item-label']"
-        >
-          {{ todo.title }}
-        </div>
-        <input
-          type="text"
-          v-model="todo.title"
-          class="todo-item-edit"
-          v-else
-          @blur="doneEdit(todo)"
-          @keyup.enter="doneEdit(todo)"
-          v-focus
-          @keyup.esc="cancelEdit(todo)"
-        />
-      </div>
-      <div class="remove-item" @click="removeTodo(index)">
-        &times;
-      </div>
+    <div v-for="(todo, index) in todosFiltered" :key="todo.id">
+      <TodoListItem
+        :index="index"
+        :todo="todo"
+        :checkAll="!anyRemaining"
+        @removedTodo="removeTodo"
+        @finishEdit="finishEdit"
+      />
     </div>
     <div class="extra-container">
       <div>
@@ -82,7 +59,9 @@
 </template>
 
 <script>
+import TodoListItem from "./TodoListItem.vue";
 export default {
+  components: { TodoListItem },
   name: "TodoList",
   data() {
     return {
@@ -132,14 +111,6 @@ export default {
       return this.todos.filter((todo) => todo.completed).length > 0;
     }
   },
-  directives: {
-    focus: {
-      inserted: function(el) {
-        el.focus();
-      }
-    }
-  },
-
   methods: {
     addTodo() {
       if (this.newTodo.trim() === "") {
@@ -153,20 +124,6 @@ export default {
       this.newTodo = "";
       this.idForTodo++;
     },
-    editTodo(todo) {
-      this.beforeEditCache = todo.title;
-      todo.editing = true;
-    },
-    cancelEdit(todo) {
-      todo.title = this.beforeEditCache;
-      todo.editing = false;
-    },
-    doneEdit(todo) {
-      if (todo.title.trim() === "") {
-        todo.title = this.beforeEditCache;
-      }
-      todo.editing = false;
-    },
     removeTodo(index) {
       this.todos.splice(index, 1);
     },
@@ -175,6 +132,9 @@ export default {
     },
     clearCompleted() {
       this.todos = this.todos.filter((todo) => !todo.completed);
+    },
+    finishEdit(data) {
+      this.todos.splice(data.index, 1, data.todo);
     }
   }
 };
@@ -190,48 +150,6 @@ export default {
 
     &:focus {
       outline: 0;
-    }
-  }
-
-  .todo-item {
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .todo-left {
-      display: flex;
-      align-items: center;
-
-      .completed {
-        text-decoration: line-through;
-        color: gray;
-      }
-
-      .todo-item-label {
-        padding: 10px;
-        border: 1px solid white;
-        margin-left: 12px;
-      }
-
-      .todo-item-edit {
-        font-size: 18px;
-        color: #2c3e50;
-        margin-left: 12px;
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        font-family: "Source Sans Pro", sans-serif;
-      }
-    }
-
-    .remove-item {
-      cursor: pointer;
-      margin-left: 14px;
-
-      &:hover {
-        color: black;
-      }
     }
   }
 
