@@ -7,7 +7,11 @@
       v-model="newTodo"
       @keyup.enter="addTodo"
     />
-    <div v-for="(todo, index) in todos" :key="todo.id" class="todo-item">
+    <div
+      v-for="(todo, index) in todosFiltered"
+      :key="todo.id"
+      class="todo-item"
+    >
       <div class="todo-left">
         <input type="checkbox" v-model="todo.completed" />
         <!-- completed is a css class witch is conditional
@@ -38,11 +42,41 @@
     <div class="extra-container">
       <div>
         <label>
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            :checked="!anyRemaining"
+            @change="checkAllTodos"
+          />
           Check All
         </label>
       </div>
       <div>{{ remaining }} items left</div>
+    </div>
+    <div class="extra-container">
+      <div>
+        <button :class="{ active: filter === 'all' }" @click="filter = 'all'">
+          All
+        </button>
+        <button
+          :class="{ active: filter === 'active' }"
+          @click="filter = 'active'"
+        >
+          Active
+        </button>
+        <button
+          :class="{ active: filter === 'completed' }"
+          @click="filter = 'completed'"
+        >
+          Completed
+        </button>
+      </div>
+      <div>
+        <transition name="fade">
+          <button v-if="showClearCompletedButton" @click="clearCompleted">
+            Clear Completed
+          </button>
+        </transition>
+      </div>
     </div>
   </div>
 </template>
@@ -55,6 +89,7 @@ export default {
       newTodo: "",
       beforeEditCache: "",
       idForTodo: 4,
+      filter: "all",
       todos: [
         {
           id: 1,
@@ -80,6 +115,21 @@ export default {
   computed: {
     remaining() {
       return this.todos.filter((todo) => !todo.completed).length;
+    },
+    anyRemaining() {
+      return this.remaining !== 0;
+    },
+    todosFiltered() {
+      if (this.filter === "active") {
+        return this.todos.filter((todo) => !todo.completed);
+      } else if (this.filter === "completed") {
+        return this.todos.filter((todo) => todo.completed);
+      } else {
+        return this.todos;
+      }
+    },
+    showClearCompletedButton() {
+      return this.todos.filter((todo) => todo.completed).length > 0;
     }
   },
   directives: {
@@ -89,6 +139,7 @@ export default {
       }
     }
   },
+
   methods: {
     addTodo() {
       if (this.newTodo.trim() === "") {
@@ -118,6 +169,12 @@ export default {
     },
     removeTodo(index) {
       this.todos.splice(index, 1);
+    },
+    checkAllTodos() {
+      this.todos.forEach((todo) => (todo.completed = event.target.checked));
+    },
+    clearCompleted() {
+      this.todos = this.todos.filter((todo) => !todo.completed);
     }
   }
 };
@@ -191,6 +248,9 @@ export default {
       font-size: 14px;
       background-color: white;
       appearance: none;
+      margin: 2px;
+      border: 1px solid gray;
+      cursor: pointer;
 
       &:hover {
         background: lightgreen;
@@ -203,6 +263,17 @@ export default {
 
     .active {
       background: lightgreen;
+    }
+
+    // CSS Transition
+    .fade-enter-active,
+    .fade-leave-active {
+      transition: opacity 0.2s;
+    }
+
+    .fade-enter,
+    .fade-leave-to {
+      opacity: 0;
     }
   }
 }
