@@ -17,41 +17,20 @@
       />
     </div>
     <div class="extra-container">
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            :checked="!anyRemaining"
-            @change="checkAllTodos"
-          />
-          Check All
-        </label>
-      </div>
-      <div>{{ remaining }} items left</div>
+      <TodoCheckAll
+        :anyRemaining="anyRemaining"
+        @checkAllChanged="checkAllTodos"
+      />
+      <TodoItemsRemaining :remaining="remaining" />
     </div>
     <div class="extra-container">
-      <div>
-        <button :class="{ active: filter === 'all' }" @click="filter = 'all'">
-          All
-        </button>
-        <button
-          :class="{ active: filter === 'active' }"
-          @click="filter = 'active'"
-        >
-          Active
-        </button>
-        <button
-          :class="{ active: filter === 'completed' }"
-          @click="filter = 'completed'"
-        >
-          Completed
-        </button>
-      </div>
+      <TodoFiltered @filterChanged="filterChanged" :filter="filter" />
       <div>
         <transition name="fade">
-          <button v-if="showClearCompletedButton" @click="clearCompleted">
-            Clear Completed
-          </button>
+          <TodoClearCompleted
+            :showClearCompletedButton="showClearCompletedButton"
+            @clearCompletedTodos="clearCompleted"
+          />
         </transition>
       </div>
     </div>
@@ -59,9 +38,19 @@
 </template>
 
 <script>
+import TodoCheckAll from "./TodoCheckAll.vue";
+import TodoClearCompleted from "./TodoClearCompleted.vue";
+import TodoFiltered from "./TodoFiltered.vue";
+import TodoItemsRemaining from "./TodoItemsRemaining.vue";
 import TodoListItem from "./TodoListItem.vue";
 export default {
-  components: { TodoListItem },
+  components: {
+    TodoListItem,
+    TodoItemsRemaining,
+    TodoCheckAll,
+    TodoClearCompleted,
+    TodoFiltered
+  },
   name: "TodoList",
   data() {
     return {
@@ -135,6 +124,9 @@ export default {
     },
     finishEdit(data) {
       this.todos.splice(data.index, 1, data.todo);
+    },
+    filterChanged(filter) {
+      this.filter = filter;
     }
   }
 };
@@ -177,10 +169,6 @@ export default {
       &:focus {
         outline: none;
       }
-    }
-
-    .active {
-      background: lightgreen;
     }
 
     // CSS Transition
