@@ -8,29 +8,17 @@
       @keyup.enter="addTodo"
     />
     <div v-for="(todo, index) in todosFiltered" :key="todo.id">
-      <TodoListItem
-        :index="index"
-        :todo="todo"
-        :checkAll="!anyRemaining"
-        @removedTodo="removeTodo"
-        @finishEdit="finishEdit"
-      />
+      <TodoListItem :todo="todo" :index="index" :checkAll="!anyRemaining" />
     </div>
     <div class="extra-container">
-      <TodoCheckAll
-        :anyRemaining="anyRemaining"
-        @checkAllChanged="checkAllTodos"
-      />
-      <TodoItemsRemaining :remaining="remaining" />
+      <TodoCheckAll />
+      <TodoItemsRemaining />
     </div>
     <div class="extra-container">
-      <TodoFiltered @filterChanged="filterChanged" :filter="filter" />
+      <TodoFiltered />
       <div>
         <transition name="fade">
-          <TodoClearCompleted
-            :showClearCompletedButton="showClearCompletedButton"
-            @clearCompletedTodos="clearCompleted"
-          />
+          <TodoClearCompleted />
         </transition>
       </div>
     </div>
@@ -43,6 +31,7 @@ import TodoClearCompleted from "./TodoClearCompleted.vue";
 import TodoFiltered from "./TodoFiltered.vue";
 import TodoItemsRemaining from "./TodoItemsRemaining.vue";
 import TodoListItem from "./TodoListItem.vue";
+
 export default {
   components: {
     TodoListItem,
@@ -57,47 +46,21 @@ export default {
       newTodo: "",
       beforeEditCache: "",
       idForTodo: 4,
-      filter: "all",
-      todos: [
-        {
-          id: 1,
-          title: "Finish VUE todo list",
-          completed: false,
-          editing: false
-        },
-        {
-          id: 2,
-          title: "Add DB",
-          completed: false,
-          editing: false
-        },
-        {
-          id: 3,
-          title: "Add Auth",
-          completed: false,
-          editing: false
-        }
-      ]
+      filter: "all"
     };
   },
   computed: {
     remaining() {
-      return this.todos.filter((todo) => !todo.completed).length;
+      return this.$store.getters.remaining;
     },
     anyRemaining() {
-      return this.remaining !== 0;
+      return this.$store.getters.anyRemaining;
     },
     todosFiltered() {
-      if (this.filter === "active") {
-        return this.todos.filter((todo) => !todo.completed);
-      } else if (this.filter === "completed") {
-        return this.todos.filter((todo) => todo.completed);
-      } else {
-        return this.todos;
-      }
+      return this.$store.getters.todosFiltered;
     },
     showClearCompletedButton() {
-      return this.todos.filter((todo) => todo.completed).length > 0;
+      return this.$store.getters.showClearCompletedButton;
     }
   },
   methods: {
@@ -105,28 +68,13 @@ export default {
       if (this.newTodo.trim() === "") {
         return;
       }
-      this.todos.push({
+      this.$store.state.todos.push({
         id: this.idForTodo,
         title: this.newTodo,
         completed: false
       });
       this.newTodo = "";
       this.idForTodo++;
-    },
-    removeTodo(index) {
-      this.todos.splice(index, 1);
-    },
-    checkAllTodos() {
-      this.todos.forEach((todo) => (todo.completed = event.target.checked));
-    },
-    clearCompleted() {
-      this.todos = this.todos.filter((todo) => !todo.completed);
-    },
-    finishEdit(data) {
-      this.todos.splice(data.index, 1, data.todo);
-    },
-    filterChanged(filter) {
-      this.filter = filter;
     }
   }
 };
