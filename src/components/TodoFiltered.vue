@@ -21,15 +21,14 @@
 <script>
 export default {
   name: "TodoFiltered",
-  props: {
-    filter: {
-      type: String,
-      required: true
+  computed: {
+    filter() {
+      return this.$store.state.filter;
     }
   },
   methods: {
-    changeFilter(filter) {
-      this.$emit("filterChanged", filter);
+    changeFilter(filterStr) {
+      this.$store.state.filter = filterStr;
     }
   }
 };
