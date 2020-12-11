@@ -23,7 +23,7 @@
         @keyup.esc="cancelEdit"
       />
     </div>
-    <div class="remove-item" @click="removeTodo(index)">
+    <div class="remove-item" @click="removeTodo">
       &times;
     </div>
   </div>
@@ -68,8 +68,11 @@ export default {
     }
   },
   methods: {
-    removeTodo(index) {
-      this.$emit("removedTodo", index);
+    removeTodo() {
+      const index = this.$store.state.todos.findIndex(
+        (item) => item.id === this.id
+      );
+      this.$store.state.todos.splice(index, 1);
     },
     editTodo() {
       this.beforeEditCache = this.title;
@@ -83,16 +86,18 @@ export default {
       if (this.title.trim() === "") {
         this.title = this.beforeEditCache;
       }
+
+      // find todos index in todos array in store
+      const index = this.$store.state.todos.findIndex((item) => {
+        return item.id === this.id;
+      });
+
       this.editing = false;
-      // passing data to parent component
-      this.$emit("finishEdit", {
-        index: this.index,
-        todo: {
-          id: this.id,
-          title: this.title,
-          completed: this.completed,
-          editing: this.editing
-        }
+      this.$store.state.todos.splice(index, 1, {
+        id: this.id,
+        title: this.title,
+        completed: this.completed,
+        editing: this.editing
       });
     }
   }
@@ -128,7 +133,6 @@ export default {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
-      font-family: "Source Sans Pro", sans-serif;
     }
   }
 
