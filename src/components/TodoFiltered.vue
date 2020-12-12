@@ -1,17 +1,17 @@
 <template>
   <div class="todo-filtered">
-    <button :class="{ active: filter == 'all' }" @click="changeFilter('all')">
+    <button :class="{ active: filter == 'all' }" @click="updateFilter('all')">
       All
     </button>
     <button
       :class="{ active: filter == 'active' }"
-      @click="changeFilter('active')"
+      @click="updateFilter('active')"
     >
       Active
     </button>
     <button
       :class="{ active: filter == 'completed' }"
-      @click="changeFilter('completed')"
+      @click="updateFilter('completed')"
     >
       Completed
     </button>
@@ -27,8 +27,9 @@ export default {
     }
   },
   methods: {
-    changeFilter(filterStr) {
-      this.$store.state.filter = filterStr;
+    updateFilter(filterStr) {
+      // this.$store.commit("updateFilter", filterStr);
+      this.$store.dispatch("updateFilter", filterStr);
     }
   }
 };
