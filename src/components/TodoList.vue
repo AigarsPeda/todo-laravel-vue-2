@@ -68,11 +68,13 @@ export default {
       if (this.newTodo.trim() === "") {
         return;
       }
-      this.$store.state.todos.push({
+
+      // calling mutation in store to add new todo
+      this.$store.dispatch("addTodo", {
         id: this.idForTodo,
-        title: this.newTodo,
-        completed: false
+        title: this.newTodo
       });
+
       this.newTodo = "";
       this.idForTodo++;
     }
