@@ -1,7 +1,7 @@
 <template>
   <div class="todo-item">
     <div class="todo-left">
-      <input type="checkbox" v-model="completed" @change="doneEdit" />
+      <input type="checkbox" v-model="completed" @change="updateTodo" />
       <!-- completed is a css class witch is conditional
         is added from todo.completed value and 
         todo-item-label is default css class -->
@@ -17,13 +17,13 @@
         v-model="title"
         class="todo-item-edit"
         v-else
-        @blur="doneEdit"
-        @keyup.enter="doneEdit"
+        @blur="updateTodo"
+        @keyup.enter="updateTodo"
         v-focus
         @keyup.esc="cancelEdit"
       />
     </div>
-    <div class="remove-item" @click="removeTodo">
+    <div class="remove-item" @click="removeTodo(todo.id)">
       &times;
     </div>
   </div>
@@ -68,11 +68,10 @@ export default {
     }
   },
   methods: {
-    removeTodo() {
-      const index = this.$store.state.todos.findIndex(
-        (item) => item.id === this.id
-      );
-      this.$store.state.todos.splice(index, 1);
+    removeTodo(id) {
+      // dispatch used for calling api ar async functions
+      // this.$store.commit("removeTodo", id);
+      this.$store.dispatch("removeTodo", id);
     },
     editTodo() {
       this.beforeEditCache = this.title;
@@ -82,18 +81,13 @@ export default {
       this.title = this.beforeEditCache;
       this.editing = false;
     },
-    doneEdit() {
+    updateTodo() {
       if (this.title.trim() === "") {
         this.title = this.beforeEditCache;
       }
-
-      // find todos index in todos array in store
-      const index = this.$store.state.todos.findIndex((item) => {
-        return item.id === this.id;
-      });
-
       this.editing = false;
-      this.$store.state.todos.splice(index, 1, {
+
+      this.$store.commit("updateTodo", {
         id: this.id,
         title: this.title,
         completed: this.completed,
